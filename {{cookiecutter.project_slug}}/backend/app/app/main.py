@@ -30,16 +30,16 @@ class StockResponse(BaseModel):
 stocks_db = []
 
 # Financial Modeling Prep API configuration
-FMP_API_KEY = os.getenv("FMP_API_KEY", "demo")  # Get from environment or use demo
-FMP_BASE_URL = "https://financialmodelingprep.com/api"
+FMP_API_KEY = os.getenv("FMP_API_KEY", "5XksjHauuOMm49xi64b5Aewa8P7mBTRR")  # Get from environment or use provided key
+FMP_BASE_URL = "https://site.financialmodelingprep.com/api"
 
 async def validate_ticker_with_fmp(ticker: str) -> dict:
-    """Validate ticker against Financial Modeling Prep API using stable endpoints"""
+    """Validate ticker against Financial Modeling Prep API"""
     try:
         async with httpx.AsyncClient(follow_redirects=True) as client:
-            # Use the stable search-symbol endpoint to validate ticker
+            # Use the working endpoint from your Postman test
             response = await client.get(
-                f"{FMP_BASE_URL}/stable/search-symbol",
+                "https://financialmodelingprep.com/stable/search-symbol",
                 params={"query": ticker.upper(), "apikey": FMP_API_KEY},
                 timeout=10.0
             )
@@ -103,14 +103,14 @@ async def add_stock(stock_data: StockCreate):
             detail=f"Invalid ticker '{ticker}': {validation_result['error']}. Please check the ticker symbol and try again."
         )
     
-    # Create new stock with validated data
+    # Create new stock with validated data from FMP API
     stock = {
         "id": f"stock_{len(stocks_db) + 1}",
         "ticker": ticker,
         "symbol": validation_result["symbol"],
         "name": validation_result["name"] or stock_data.name,
         "exchange": validation_result["exchange"],
-        "sector": validation_result["sector"] or stock_data.sector,
+        "sector": stock_data.sector,  # FMP doesn't provide sector in search-symbol
         "added_at": datetime.utcnow(),
         "is_active": True
     }
