@@ -1,80 +1,21 @@
-# Full-Stack Hackathon Project Requirements
-# This file contains ALL dependencies for the entire project
-
-# =============================================================================
-# BACKEND DEPENDENCIES (Python)
-# =============================================================================
+# Hackathon Project - Essential Dependencies Only
 
 # Core FastAPI and web framework
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
 
-# Database and ODM
-motor==3.3.2
-odmantic==1.0.0
-pymongo==4.6.0
-
-# Authentication and security
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-argon2-cffi==23.1.0
-argon2-cffi-bindings==21.2.0
-
-# Data validation and settings
+# Data validation
 pydantic>=2.5.2
 pydantic-settings==2.1.0
-email-validator==2.1.0
 
 # HTTP and networking
 httpx==0.25.2
 requests==2.31.0
 
-# Background tasks
-celery==5.3.4
-
 # Utilities
-tenacity==8.2.3
-jinja2==3.1.2
 python-dotenv==1.0.0
 
-# =============================================================================
-# DEVELOPMENT AND TESTING TOOLS
-# =============================================================================
-
-# Testing framework
+# Development tools (optional)
 pytest==7.4.3
-pytest-asyncio==0.21.1
-pytest-cov==4.1.0
-
-# Code formatting and linting
 black==23.11.0
-isort==5.12.0
-mypy==1.7.1
-flake8==7.3.0
-
-# Security and quality
-bandit==1.8.6
-
-# Git hooks and automation
-pre-commit==4.3.0
-
-# Documentation
-mkdocs==1.6.1
-mkdocs-material==9.6.22
-
-# =============================================================================
-# FRONTEND DEPENDENCIES (Node.js)
-# =============================================================================
-# Note: Run 'npm install' in the frontend directory
-# The following are the main frontend dependencies:
-# - next@^14.0.4
-# - react@18.2.0
-# - react-dom@18.2.0
-# - tailwindcss@latest
-# - @headlessui/react@^1.7.17
-# - @heroicons/react@^2.0.18
-# - @reduxjs/toolkit@^1.9.6
-# - react-hook-form@^7.46.2
-# - react-redux@^8.1.2
-# - redux@latest
