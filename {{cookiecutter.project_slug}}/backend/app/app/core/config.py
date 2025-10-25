@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_SECONDS: int = 60 * 60 * 24 * 30
     JWT_ALGO: str = "HS512"
     TOTP_ALGO: str = "SHA-1"
-    SERVER_NAME: str
-    SERVER_HOST: AnyHttpUrl
+    SERVER_NAME: str = "localhost"
+    SERVER_HOST: AnyHttpUrl = "http://localhost:8000"
     SERVER_BOT: str = "Symona"
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
@@ -31,7 +31,7 @@ class Settings(BaseSettings):
         list[AnyHttpUrl] | str, BeforeValidator(parse_cors)
     ] = []
 
-    PROJECT_NAME: str
+    PROJECT_NAME: str = "Hackathon Project"
     SENTRY_DSN: HttpUrl | None = None
 
     @field_validator("SENTRY_DSN", mode="before")
@@ -45,8 +45,8 @@ class Settings(BaseSettings):
     MULTI_MAX: int = 20
 
     # COMPONENT SETTINGS
-    MONGO_DATABASE: str
-    MONGO_DATABASE_URI: str
+    MONGO_DATABASE: str = "hackathon"
+    MONGO_DATABASE_URI: str = "mongodb://localhost:27017/hackathon"
 
     SMTP_TLS: bool = True
     SMTP_PORT: int = 587
@@ -72,8 +72,8 @@ class Settings(BaseSettings):
         return bool(info.data.get("SMTP_HOST") and info.data.get("SMTP_PORT") and info.data.get("EMAILS_FROM_EMAIL"))
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"  # type: ignore
-    FIRST_SUPERUSER: EmailStr
-    FIRST_SUPERUSER_PASSWORD: str
+    FIRST_SUPERUSER: EmailStr = "admin@example.com"
+    FIRST_SUPERUSER_PASSWORD: str = "changethis"
     USERS_OPEN_REGISTRATION: bool = True
 
 

@@ -1,11 +1,28 @@
 {
-  "name": "{{cookiecutter.project_slug}}",
-  "version": "0.1.0",
-  "private": true,
+  "name": "hackathon-project",
+  "version": "1.0.0",
+  "description": "Full-stack hackathon project with FastAPI, Next.js, and MongoDB",
   "scripts": {
-    "dev": "cd frontend && npm run dev",
+    "setup": "./setup.sh",
+    "dev": "./start.sh",
+    "backend": "source venv/bin/activate && cd backend && uvicorn app.main:app --reload",
+    "frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
-    "start": "cd frontend && npm start",
-    "backend": "cd backend/app && hatch shell && uvicorn app.main:app --reload"
+    "test": "source venv/bin/activate && cd backend && pytest",
+    "lint": "source venv/bin/activate && cd backend && black . && isort .",
+    "format": "cd frontend && npm run lint"
+  },
+  "keywords": [
+    "hackathon",
+    "fastapi",
+    "nextjs",
+    "mongodb",
+    "fullstack"
+  ],
+  "author": "Hackathon Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.11.0"
   }
 }
