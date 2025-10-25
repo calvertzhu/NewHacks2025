@@ -1,0 +1,11 @@
+{
+  "name": "{{cookiecutter.project_slug}}",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm start",
+    "backend": "cd backend/app && hatch shell && uvicorn app.main:app --reload"
+  }
+}
