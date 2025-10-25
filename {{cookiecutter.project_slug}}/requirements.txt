@@ -13,6 +13,10 @@ pydantic-settings==2.1.0
 httpx==0.25.2
 requests==2.31.0
 
+# MongoDB driver
+motor==3.3.2
+pymongo==4.6.1
+
 # Utilities
 python-dotenv==1.0.0
 
