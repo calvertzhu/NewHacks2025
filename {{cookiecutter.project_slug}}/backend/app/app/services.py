@@ -105,3 +105,5 @@ async def get_ticker_details(ticker: str) -> dict:
                 return {"success": False, "error": f"API returned status {response.status_code}"}
     except Exception as e:
         return {"success": False, "error": f"Ticker details error: {str(e)}"}
+
+

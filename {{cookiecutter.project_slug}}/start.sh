@@ -1,17 +1,16 @@
 #!/bin/bash
 
-echo "Starting Aaron Gu development environment..."
+echo "Starting Stock Tracker development environment..."
 
 # Start backend
 echo "Starting backend..."
-source venv/bin/activate
-cd backend/app
-uvicorn app.main:app --reload &
+cd backend/app/app
+python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload &
 BACKEND_PID=$!
 
 # Start frontend
 echo "Starting frontend..."
-cd ../../frontend
+cd ../../../frontend
 npm run dev &
 FRONTEND_PID=$!
 
