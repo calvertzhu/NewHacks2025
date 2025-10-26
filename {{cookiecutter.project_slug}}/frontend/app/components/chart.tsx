@@ -47,7 +47,7 @@ const stockData: Record<
 > = {
   AAPL: {
     name: "Apple Inc.",
-    exchange: " ",
+    exchange: "NASDAQ",
     price: 262.81,
     change: 2.55,
     dayLow: 258.32,
