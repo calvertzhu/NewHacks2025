@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { PortfolioSidebar } from "@/components/portfolio-sidebar"
-import { StockChart } from "@/components/stock-chart"
+import { PortfolioSidebar } from "@/components/sidebar"
+import { StockChart } from "@/components/chart"
 
 export default function StockTrackerPage() {
   const [selectedStock, setSelectedStock] = useState("AAPL")
