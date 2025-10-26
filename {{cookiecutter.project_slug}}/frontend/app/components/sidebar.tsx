@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Card } from "@/components/ui/card"
+import { Card } from "@/C:\Users\hhann\NewHacks2025\{{cookiecutter.project_slug}}\frontend\app\components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
