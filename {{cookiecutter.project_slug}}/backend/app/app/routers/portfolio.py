@@ -5,9 +5,9 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 from datetime import datetime
 
-from app.models import StockCreate, StockResponse
-from app.database import get_collection
-from app.services import validate_ticker_with_polygon, search_stocks, get_ticker_details
+from models import StockCreate, StockResponse
+from database import get_collection
+from services import validate_ticker_with_polygon, search_stocks, get_ticker_details
 
 router = APIRouter(prefix="/api/v1/stocks", tags=["portfolio"])
 
@@ -188,3 +188,5 @@ async def get_ticker_details_endpoint(ticker: str):
         )
     
     return result["details"]
+
+

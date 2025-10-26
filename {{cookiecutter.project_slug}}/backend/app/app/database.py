@@ -23,7 +23,9 @@ async def connect_to_mongo():
     global mongodb_client, mongodb_database
     mongodb_client = AsyncIOMotorClient(MONGODB_URL)
     mongodb_database = mongodb_client[DATABASE_NAME]
-    print(f"Connected to MongoDB at {MONGODB_URL}")
+    # Mask credentials in connection string for security
+    masked_url = MONGODB_URL.split('@')[-1] if '@' in MONGODB_URL else MONGODB_URL
+    print(f"Connected to MongoDB at {masked_url}")
 
 
 async def close_mongo_connection():
