@@ -94,7 +94,7 @@ export function PortfolioSidebar({
       {/* Header */}
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="text-sm font-semibold flex items-center gap-2">
-          <Star className="h-4 w-4 text-yellow-400" /> Watchlist
+          <Star className="h-4 w-4 text-yellow-400" /> My Portfolio
         </div>
         <Button variant="ghost" size="icon" onClick={onToggleCollapse} className="h-6 w-6">
           <ChevronLeft className="h-3 w-3" />
@@ -104,7 +104,7 @@ export function PortfolioSidebar({
       {/* Controls */}
       <div className="px-3 pb-2 space-y-2">
         <Input
-          placeholder="Search symbols…"
+          placeholder="search your stocks"
           value={query}
           onChange={e => setQuery(e.target.value)}
           className="h-8 bg-zinc-900/60 border-zinc-800/60"
