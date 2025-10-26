@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChevronLeft, ChevronRight, Plus, TrendingDown, TrendingUp, X, Star } from "lucide-react"
 import { createChart, ColorType, IChartApi, ISeriesApi } from "lightweight-charts"
 import { cn } from "@/lib/utils"
+import { addStockToPortfolio, removeStockFromPortfolio, getPortfolio } from "@/lib/api"
 
 interface Stock {
   symbol: string
@@ -41,6 +42,31 @@ export function PortfolioSidebar({
   const [stocks, setStocks] = useState<Stock[]>(SEED)
   const [query, setQuery] = useState("")
   const [newSymbol, setNewSymbol] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Load portfolio from backend on mount
+  useEffect(() => {
+    const loadPortfolio = async () => {
+      try {
+        const portfolio = await getPortfolio()
+        // Convert backend format to frontend format
+        const formattedStocks: Stock[] = portfolio.map(stock => ({
+          symbol: stock.ticker,
+          name: stock.name || `${stock.ticker} Corp.`,
+          price: 100, // Mock price for now
+          changePct: 0,
+          spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v})) // Mock sparkline
+        }))
+        setStocks(formattedStocks)
+      } catch (err) {
+        console.error("Failed to load portfolio:", err)
+        // Keep SEED data if API fails
+      }
+    }
+    
+    loadPortfolio()
+  }, [])
 
   const filtered = useMemo(() => {
     const list = [...stocks].sort((a, b) =>
@@ -51,19 +77,54 @@ export function PortfolioSidebar({
     return list.filter(s => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
   }, [stocks, sortBy, query])
 
-  // adding a new stock to portfolio TO-DO! (xx corp)
-  const addStock = () => {
+  // Add stock to portfolio via API
+  const addStock = async () => {
     const s = newSymbol.trim().toUpperCase()
     if (!s || stocks.find(x => x.symbol === s)) return
-    setStocks(prev => [
-      ...prev,
-      { symbol: s, name: `${s} Corp.`, price: 100, changePct: 0, spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v})) },
-    ])
-    setNewSymbol("")
+    
+    setLoading(true)
+    setError(null)
+    
+    try {
+      // Call backend API to add stock (uses Polygon to validate)
+      await addStockToPortfolio(s)
+      
+      // Reload portfolio from backend
+      const portfolio = await getPortfolio()
+      const formattedStocks: Stock[] = portfolio.map(stock => ({
+        symbol: stock.ticker,
+        name: stock.name || `${stock.ticker} Corp.`,
+        price: 100,
+        changePct: 0,
+        spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v}))
+      }))
+      setStocks(formattedStocks)
+      setNewSymbol("")
+    } catch (err: any) {
+      setError(err.message || "Failed to add stock. Please check if the ticker is valid.")
+      console.error("Error adding stock:", err)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const removeStock = (sym: string) => {
-    setStocks(prev => prev.filter(s => s.symbol !== sym))
+  const removeStock = async (sym: string) => {
+    try {
+      await removeStockFromPortfolio(sym)
+      
+      // Reload portfolio from backend
+      const portfolio = await getPortfolio()
+      const formattedStocks: Stock[] = portfolio.map(stock => ({
+        symbol: stock.ticker,
+        name: stock.name || `${stock.ticker} Corp.`,
+        price: 100,
+        changePct: 0,
+        spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v}))
+      }))
+      setStocks(formattedStocks)
+    } catch (err: any) {
+      console.error("Error removing stock:", err)
+    }
   }
 
   if (isCollapsed) {
@@ -117,10 +178,15 @@ export function PortfolioSidebar({
             onKeyDown={e => e.key === "Enter" && addStock()}
             className="h-8 bg-zinc-900/60 border-zinc-800/60"
           />
-          <Button onClick={addStock} className="h-8 px-3 rounded-xl">
+          <Button onClick={addStock} disabled={loading} className="h-8 px-3 rounded-xl">
             <Plus className="h-4 w-4" />
           </Button>
         </div>
+        {error && (
+          <div className="text-xs text-red-400 px-3 pb-2">
+            {error}
+          </div>
+        )}
         <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
           <SelectTrigger className="h-8 bg-zinc-900/60 border-zinc-800/60">
             <SelectValue />
