@@ -41,7 +41,6 @@ export function PortfolioSidebar({
   const [sortBy, setSortBy] = useState<"alphabetical" | "alerts" | "recent">("alphabetical")
   const [stocks, setStocks] = useState<Stock[]>(SEED)
   const [query, setQuery] = useState("")
-  const [newSymbol, setNewSymbol] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -75,7 +74,7 @@ export function PortfolioSidebar({
   }, [stocks, sortBy, query])
 
   const addStock = async () => {
-    const s = newSymbol.trim().toUpperCase()
+    const s = query.trim().toUpperCase()
     if (!s || stocks.find(x => x.symbol === s)) return
     
     setLoading(true)
@@ -92,7 +91,7 @@ export function PortfolioSidebar({
         spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v}))
       }))
       setStocks(formattedStocks)
-      setNewSymbol("")
+      setQuery("")
     } catch (err: any) {
       setError(err.message || "Failed to add stock. Please check if the ticker is valid.")
       console.error("Error adding stock:", err)
@@ -120,8 +119,8 @@ export function PortfolioSidebar({
 
   if (isCollapsed) {
     return (
-      <div className="w-20 h-screen bg-zinc-950/30 flex flex-col items-center py-4">
-        <Button variant="ghost" size="icon" onClick={onToggleCollapse} className="mb-4">
+      <div className="w-20 h-screen bg-zinc-950/30 flex flex-col items-center py-6">
+        <Button variant="ghost" size="icon" onClick={onToggleCollapse} className="mb-6">
           <ChevronRight className="h-4 w-4" />
         </Button>
         <div className="flex flex-col gap-2">
@@ -144,7 +143,7 @@ export function PortfolioSidebar({
   return (
     <aside className="w-80 h-screen bg-zinc-950/30 border-r border-zinc-800/40 flex flex-col pb-10">
       {/* Header */}
-      <div className="px-3 py-2 flex items-center justify-between">
+      <div className="px-3 py-3 flex items-center justify-between">
         <div className="text-sm font-semibold flex items-center gap-2">
           <Star className="h-4 w-4 text-yellow-400" /> My Portfolio
         </div>
@@ -154,18 +153,13 @@ export function PortfolioSidebar({
       </div>
 
       {/* Controls */}
-      <div className="px-3 pb-2 space-y-2">
-        <Input
-          placeholder="search symbols…"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          className="h-8 bg-zinc-900/60 border-zinc-800/60"
-        />
+      <div className="px-3 pb-3 space-y-2">
+        {/* Combined Search + Add Symbol */}
         <div className="flex gap-2">
           <Input
-            placeholder="Add symbol"
-            value={newSymbol}
-            onChange={e => setNewSymbol(e.target.value.toUpperCase())}
+            placeholder="Search or add symbol..."
+            value={query}
+            onChange={e => setQuery(e.target.value.toUpperCase())}
             onKeyDown={e => e.key === "Enter" && addStock()}
             className="h-8 bg-zinc-900/60 border-zinc-800/60"
           />
@@ -173,7 +167,9 @@ export function PortfolioSidebar({
             <Plus className="h-4 w-4" />
           </Button>
         </div>
-        {error && <div className="text-xs text-red-400 px-3 pb-2">{error}</div>}
+
+        {error && <div className="text-xs text-red-400 px-3 pb-1">{error}</div>}
+
         <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
           <SelectTrigger className="h-8 bg-zinc-900/60 border-zinc-800/60">
             <SelectValue />
@@ -188,7 +184,7 @@ export function PortfolioSidebar({
 
       {/* List */}
       <ScrollArea className="flex-1">
-        <div className="pl-2 pr-3 pb-4 space-y-1.5">
+        <div className="pl-3 pr-4 pb-8 space-y-1.5">
           {filtered.map(s => (
             <WatchItem
               key={s.symbol}
@@ -204,22 +200,9 @@ export function PortfolioSidebar({
   )
 }
 
-// ——— WatchItem with Lightweight-Charts sparkline ———
-
-function WatchItem({
-  stock,
-  active,
-  onClick,
-  onRemove,
-}: {
-  stock: Stock
-  active?: boolean
-  onClick?: () => void
-  onRemove?: () => void
-}) {
+// ——— WatchItem remains unchanged ———
+function WatchItem({ stock, active, onClick, onRemove }: { stock: Stock; active?: boolean; onClick?: () => void; onRemove?: () => void }) {
   const ref = useRef<HTMLDivElement>(null)
-  const chartRef = useRef<IChartApi | null>(null)
-  const seriesRef = useRef<ISeriesApi<"Line"> | null>(null)
 
   useEffect(() => {
     if (!ref.current) return
@@ -234,8 +217,7 @@ function WatchItem({
     })
     const rising = stock.spark.at(-1)!.value >= stock.spark[0]!.value
     const series = chart.addLineSeries({ color: rising ? "#22c55e" : "#ef4444", lineWidth: 2 })
-    chartRef.current = chart
-    seriesRef.current = series
+    chart.addLineSeries
     return () => chart.remove()
   }, [stock.symbol])
 
