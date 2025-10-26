@@ -140,35 +140,34 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
           hide_side_toolbar: true,
           allow_symbol_change: false,
           disabled_features: [
-            "header_symbol_search",
-            "header_compare",
-            "header_undo_redo",
-            "header_screenshot",
+            "header_symbol_search", //  no
+            "header_compare", // no
+            "header_undo_redo", // no
+            "header_screenshot", // no
             "header_chart_type",
             "header_settings",
             "header_indicators",
             "header_fullscreen_button",
             "timeframes_toolbar",
             "control_bar",
-            "left_toolbar",
-            "context_menus",
-            "edit_buttons_in_legend",
-            "border_around_the_chart",
-            "main_series_scale_menu",
+            // "left_toolbar",
+            // "context_menus",
+            // "edit_buttons_in_legend",
+            // "border_around_the_chart",
             "display_market_status",
             "remove_library_container_border",
             "chart_property_page_style",
             "property_pages",
             "show_chart_property_page",
-            "chart_crosshair_menu",
-            "source_selection_markers",
+            // "source_selection_markers",
+            // "chart_crosshair_menu",
           ],
           enabled_features: ["hide_left_toolbar_by_default"],
           disabled_features_mobile: ["left_toolbar", "header_widget", "timeframes_toolbar"],
-          overrides: {
-            "mainSeriesProperties.showCountdown": false,
-            "paneProperties.legendProperties.showLegend": false,
-          },
+          //overrides: {
+           // "mainSeriesProperties.showCountdown": false,
+          //  "paneProperties.legendProperties.showLegend": false,
+          //},
           container_id: "tradingview_chart",
           backgroundColor: "#09090b",
           gridColor: "rgba(39, 39, 42, 0.3)",
@@ -225,7 +224,7 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
       {/* Chart Area */}
       <div className="flex-1 p-6">
         <Card className="h-full p-0 flex flex-col bg-zinc-950/30 border-zinc-800/50 overflow-hidden">
-          <div ref={chartContainerRef} id="tradingview_chart" className="flex-1 min-h-[400px] pointer-events-none" />
+          <div ref={chartContainerRef} id="tradingview_chart" className="flex-1 min-h-[400px]" />
         </Card>
       </div>
 
@@ -233,12 +232,14 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
         {/* Stats Box - Inline Format */}
         <Card className="flex-1 p-3 bg-zinc-950/30 border-zinc-800/50">
           <div className="flex items-center gap-4 text-xs flex-wrap">
+            {/* Day Range */}
             <div className="flex items-center gap-1.5">
               <span className="text-zinc-400">Day Range</span>
               <span className="font-semibold font-mono tabular-nums">
                 {stock.dayLow.toFixed(2)}-{stock.dayHigh.toFixed(2)}
               </span>
             </div>
+            {/* Year Range*/}
             <span className="text-zinc-600">•</span>
             <div className="flex items-center gap-1.5">
               <span className="text-zinc-400">52W Range</span>
@@ -246,15 +247,29 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
                 {stock.week52Low.toFixed(2)}-{stock.week52High.toFixed(2)}
               </span>
             </div>
+            {/* Volume*/}
             <span className="text-zinc-600">•</span>
             <div className="flex items-center gap-1.5">
               <span className="text-zinc-400">Volume</span>
               <span className="font-semibold tabular-nums">{stock.volume}</span>
             </div>
+            {/* Market Cap*/}
             <span className="text-zinc-600">•</span>
             <div className="flex items-center gap-1.5">
               <span className="text-zinc-400">Market Cap</span>
               <span className="font-semibold tabular-nums">{stock.marketCap}</span>
+            </div>
+            {/* Open Price*/}
+            <span className="text-zinc-600">•</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-400">Open Price</span>
+              <span className="font-semibold tabular-nums">{stock.openPrice}</span>
+            </div>
+            {/* Close Price*/}
+            <span className="text-zinc-600">•</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-400">Close Price</span>
+              <span className="font-semibold tabular-nums">{stock.closePrice}</span>
             </div>
           </div>
         </Card>

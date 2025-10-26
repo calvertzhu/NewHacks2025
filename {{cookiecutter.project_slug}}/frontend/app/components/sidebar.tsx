@@ -28,8 +28,8 @@ interface PortfolioSidebarProps {
 }
 
 const SEED: Stock[] = [
-  { symbol: "AAPL", name: "Apple Inc.",     price: 231.45, changePct: 0.79, spark: [221,224,222,228,229,227,231].map((v,i)=>({time:i+1,value:v})) },
-  { symbol: "TSLA", name: "Tesla",          price: 253.71, changePct: 3.65, spark: [241,244,245,249,252,254,253].map((v,i)=>({time:i+1,value:v})) },
+  { symbol: "AAPL", name: "Apple Inc.", price: 231.45, changePct: 0.79, spark: [221,224,222,228,229,227,231].map((v,i)=>({time:i+1,value:v})) },
+  { symbol: "TSLA", name: "Tesla", price: 253.71, changePct: 3.65, spark: [241,244,245,249,252,254,253].map((v,i)=>({time:i+1,value:v})) },
 ]
 
 export function PortfolioSidebar({
@@ -80,6 +80,8 @@ export function PortfolioSidebar({
   // Add stock to portfolio via API
   const addStock = async () => {
     const s = newSymbol.trim().toUpperCase()
+    // “If the input is empty OR the stock symbol already exists, stop and don’t add anything.”
+    // Here, make it that the stock must also be valid (not random letters)
     if (!s || stocks.find(x => x.symbol === s)) return
     
     setLoading(true)
@@ -155,7 +157,7 @@ export function PortfolioSidebar({
       {/* Header */}
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="text-sm font-semibold flex items-center gap-2">
-          <Star className="h-4 w-4 text-yellow-400" /> Watchlist
+          <Star className="h-4 w-4 text-yellow-400"/> My Portfolio
         </div>
         <Button variant="ghost" size="icon" onClick={onToggleCollapse} className="h-6 w-6">
           <ChevronLeft className="h-3 w-3" />
@@ -165,7 +167,7 @@ export function PortfolioSidebar({
       {/* Controls */}
       <div className="px-3 pb-2 space-y-2">
         <Input
-          placeholder="Search symbols…"
+          placeholder="search symbols…"
           value={query}
           onChange={e => setQuery(e.target.value)}
           className="h-8 bg-zinc-900/60 border-zinc-800/60"
@@ -201,7 +203,7 @@ export function PortfolioSidebar({
 
       {/* List */}
       <ScrollArea className="flex-1">
-        <div className="px-2 pb-2 space-y-1.5">
+        <div className="pl-2 pr-3 pb-2 space-y-1.5">
           {filtered.map(s => (
             <WatchItem
               key={s.symbol}
