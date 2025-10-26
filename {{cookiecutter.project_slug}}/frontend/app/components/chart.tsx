@@ -139,9 +139,6 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
           enable_publishing: false,
           hide_side_toolbar: true,
           allow_symbol_change: false,
-          overrides: {
-            "paneProperties.legendProperties.showInterval": false,
-          },
           disabled_features: [
             "header_symbol_search", //  no
             "header_compare", // no
@@ -235,12 +232,14 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
         {/* Stats Box - Inline Format */}
         <Card className="flex-1 p-3 bg-zinc-950/30 border-zinc-800/50">
           <div className="flex items-center gap-4 text-xs flex-wrap">
+            {/* Day Range */}
             <div className="flex items-center gap-1.5">
               <span className="text-zinc-400">Day Range</span>
               <span className="font-semibold font-mono tabular-nums">
                 {stock.dayLow.toFixed(2)}-{stock.dayHigh.toFixed(2)}
               </span>
             </div>
+            {/* Year Range*/}
             <span className="text-zinc-600">•</span>
             <div className="flex items-center gap-1.5">
               <span className="text-zinc-400">52W Range</span>
@@ -248,15 +247,29 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
                 {stock.week52Low.toFixed(2)}-{stock.week52High.toFixed(2)}
               </span>
             </div>
+            {/* Volume*/}
             <span className="text-zinc-600">•</span>
             <div className="flex items-center gap-1.5">
               <span className="text-zinc-400">Volume</span>
               <span className="font-semibold tabular-nums">{stock.volume}</span>
             </div>
+            {/* Market Cap*/}
             <span className="text-zinc-600">•</span>
             <div className="flex items-center gap-1.5">
               <span className="text-zinc-400">Market Cap</span>
               <span className="font-semibold tabular-nums">{stock.marketCap}</span>
+            </div>
+            {/* Open Price*/}
+            <span className="text-zinc-600">•</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-400">Open Price</span>
+              <span className="font-semibold tabular-nums">{stock.openPrice}</span>
+            </div>
+            {/* Close Price*/}
+            <span className="text-zinc-600">•</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-400">Close Price</span>
+              <span className="font-semibold tabular-nums">{stock.closePrice}</span>
             </div>
           </div>
         </Card>
