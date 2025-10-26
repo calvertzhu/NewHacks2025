@@ -51,6 +51,7 @@ export function PortfolioSidebar({
     return list.filter(s => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
   }, [stocks, sortBy, query])
 
+  // adding a new stock to portfolio TO-DO! (xx corp)
   const addStock = () => {
     const s = newSymbol.trim().toUpperCase()
     if (!s || stocks.find(x => x.symbol === s)) return
