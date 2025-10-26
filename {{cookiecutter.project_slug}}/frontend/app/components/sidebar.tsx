@@ -50,21 +50,18 @@ export function PortfolioSidebar({
     const loadPortfolio = async () => {
       try {
         const portfolio = await getPortfolio()
-        // Convert backend format to frontend format
         const formattedStocks: Stock[] = portfolio.map(stock => ({
           symbol: stock.ticker,
           name: stock.name || `${stock.ticker} Corp.`,
-          price: 100, // Mock price for now
+          price: 100,
           changePct: 0,
-          spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v})) // Mock sparkline
+          spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v}))
         }))
         setStocks(formattedStocks)
       } catch (err) {
         console.error("Failed to load portfolio:", err)
-        // Keep SEED data if API fails
       }
     }
-    
     loadPortfolio()
   }, [])
 
@@ -77,21 +74,15 @@ export function PortfolioSidebar({
     return list.filter(s => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
   }, [stocks, sortBy, query])
 
-  // Add stock to portfolio via API
   const addStock = async () => {
     const s = newSymbol.trim().toUpperCase()
-    // “If the input is empty OR the stock symbol already exists, stop and don’t add anything.”
-    // Here, make it that the stock must also be valid (not random letters)
     if (!s || stocks.find(x => x.symbol === s)) return
     
     setLoading(true)
     setError(null)
     
     try {
-      // Call backend API to add stock (uses Polygon to validate)
       await addStockToPortfolio(s)
-      
-      // Reload portfolio from backend
       const portfolio = await getPortfolio()
       const formattedStocks: Stock[] = portfolio.map(stock => ({
         symbol: stock.ticker,
@@ -113,8 +104,6 @@ export function PortfolioSidebar({
   const removeStock = async (sym: string) => {
     try {
       await removeStockFromPortfolio(sym)
-      
-      // Reload portfolio from backend
       const portfolio = await getPortfolio()
       const formattedStocks: Stock[] = portfolio.map(stock => ({
         symbol: stock.ticker,
@@ -131,7 +120,7 @@ export function PortfolioSidebar({
 
   if (isCollapsed) {
     return (
-      <div className="w-16 h-screen bg-zinc-950/30 flex flex-col items-center py-4">
+      <div className="w-20 h-screen bg-zinc-950/30 flex flex-col items-center py-4">
         <Button variant="ghost" size="icon" onClick={onToggleCollapse} className="mb-4">
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -153,11 +142,11 @@ export function PortfolioSidebar({
   }
 
   return (
-    <aside className="w-72 h-screen bg-zinc-950/30 border-r border-zinc-800/40 flex flex-col">
+    <aside className="w-80 h-screen bg-zinc-950/30 border-r border-zinc-800/40 flex flex-col pb-10">
       {/* Header */}
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="text-sm font-semibold flex items-center gap-2">
-          <Star className="h-4 w-4 text-yellow-400"/> My Portfolio
+          <Star className="h-4 w-4 text-yellow-400" /> My Portfolio
         </div>
         <Button variant="ghost" size="icon" onClick={onToggleCollapse} className="h-6 w-6">
           <ChevronLeft className="h-3 w-3" />
@@ -184,11 +173,7 @@ export function PortfolioSidebar({
             <Plus className="h-4 w-4" />
           </Button>
         </div>
-        {error && (
-          <div className="text-xs text-red-400 px-3 pb-2">
-            {error}
-          </div>
-        )}
+        {error && <div className="text-xs text-red-400 px-3 pb-2">{error}</div>}
         <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
           <SelectTrigger className="h-8 bg-zinc-900/60 border-zinc-800/60">
             <SelectValue />
@@ -203,7 +188,7 @@ export function PortfolioSidebar({
 
       {/* List */}
       <ScrollArea className="flex-1">
-        <div className="pl-2 pr-3 pb-2 space-y-1.5">
+        <div className="pl-2 pr-3 pb-4 space-y-1.5">
           {filtered.map(s => (
             <WatchItem
               key={s.symbol}
@@ -249,7 +234,6 @@ function WatchItem({
     })
     const rising = stock.spark.at(-1)!.value >= stock.spark[0]!.value
     const series = chart.addLineSeries({ color: rising ? "#22c55e" : "#ef4444", lineWidth: 2 })
-    // series.setData(stock.spark)
     chartRef.current = chart
     seriesRef.current = series
     return () => chart.remove()

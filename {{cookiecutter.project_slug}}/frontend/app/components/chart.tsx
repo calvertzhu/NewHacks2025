@@ -228,9 +228,9 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
         </Card>
       </div>
 
-      <div className="px-6 pb-6 flex gap-4">
+      <div className="px-6 pb-6 flex gap-3">
         {/* Stats Box - Inline Format */}
-        <Card className="flex-1 p-3 bg-zinc-950/30 border-zinc-800/50">
+        <Card className="flex-[0.7] p-3 bg-zinc-950/30 border-zinc-800/50">
           <div className="flex items-center gap-4 text-xs flex-wrap">
             {/* Year High*/}
             <div className="flex items-center gap-1.5">
@@ -249,11 +249,13 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
               <span className="text-zinc-400">Volume</span>
               <span className="font-semibold tabular-nums">{stock.volume}</span>
             </div>
+
+            <div className="basis-full h-0" />
+
             {/* Day High*/}
-            <span className="text-zinc-600">•</span>
             <div className="flex items-center gap-1.5">
-              <span className="text-zinc-400">Day High</span>
-              <span className="font-semibold tabular-nums">{stock.dayHigh}</span>
+            <span className="text-zinc-400">Day High</span>
+            <span className="font-semibold tabular-nums">{stock.dayHigh}</span>
             </div>
             {/* Day Low Price*/}
             <span className="text-zinc-600">•</span>
