@@ -44,4 +44,7 @@ async def get_database() -> AsyncIOMotorDatabase:
 async def get_collection(collection_name: str = "Portfolio"):
     """Get a specific collection from the database."""
     db = await get_database()
+    if db is None:
+        await connect_to_mongo()
+        db = await get_database()
     return db[collection_name]

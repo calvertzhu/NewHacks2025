@@ -107,3 +107,42 @@ async def get_ticker_details(ticker: str) -> dict:
         return {"success": False, "error": f"Ticker details error: {str(e)}"}
 
 
+async def get_current_quote(ticker: str) -> dict:
+    """Get current quote data for a ticker from Polygon.io (prev close, high, low, etc)."""
+    try:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            # Get previous day's aggregates (for current session data)
+            response = await client.get(
+                f"{POLYGON_BASE_URL}/v2/aggs/ticker/{ticker.upper()}/prev",
+                params={"adjusted": "true", "apiKey": POLYGON_API_KEY},
+                timeout=10.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("results") and len(data["results"]) > 0:
+                    result = data["results"][0]
+                    return {
+                        "success": True,
+                        "quote": {
+                            "price": result.get("c"),  # close
+                            "change": result.get("c") - result.get("o", result.get("c")),  # close - open
+                            "changePercent": ((result.get("c") - result.get("o", result.get("c"))) / result.get("o", 1)) * 100,
+                            "dayHigh": result.get("h"),
+                            "dayLow": result.get("l"),
+                            "week52High": result.get("h"),  # Approximate
+                            "week52Low": result.get("l"),  # Approximate
+                            "volume": result.get("v"),
+                            "marketCap": None,  # Not in aggregates
+                            "peRatio": None,  # Need separate call
+                            "dividend": None  # Need separate call
+                        }
+                    }
+                else:
+                    return {"success": False, "error": "No quote data found"}
+            else:
+                return {"success": False, "error": f"API returned status {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": f"Quote error: {str(e)}"}
+
+

@@ -6,8 +6,8 @@ from typing import List
 from datetime import datetime
 
 from models import StockCreate, StockResponse
-from database import get_collection
-from services import validate_ticker_with_polygon, search_stocks, get_ticker_details
+from database import get_collection, get_database
+from services import validate_ticker_with_polygon, search_stocks, get_ticker_details, get_current_quote
 
 router = APIRouter(prefix="/api/v1/stocks", tags=["portfolio"])
 
@@ -188,5 +188,22 @@ async def get_ticker_details_endpoint(ticker: str):
         )
     
     return result["details"]
+
+
+@router.get("/quote/{ticker}")
+async def get_quote_endpoint(ticker: str):
+    """Get current quote data for a ticker (price, high, low, volume, etc)."""
+    result = await get_current_quote(ticker.upper())
+    
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=400,
+            detail=result.get("error", "Failed to get quote")
+        )
+    
+    return result["quote"]
+
+
+
 
 

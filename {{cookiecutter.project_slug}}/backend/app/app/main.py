@@ -5,7 +5,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import connect_to_mongo, close_mongo_connection, get_database
-from routers import portfolio, prices
+from routers import portfolio, prices, alerts
+
+# Import gchat for RAG functionality
+try:
+    import gchat
+except ImportError:
+    gchat = None
+    print("Warning: gchat.py not found. RAG functionality will be unavailable.")
 
 # Create FastAPI app
 app = FastAPI(
@@ -26,6 +33,11 @@ app.add_middleware(
 # Include routers
 app.include_router(portfolio.router)
 app.include_router(prices.router)
+app.include_router(alerts.router)
+
+# Mount gchat app for RAG functionality
+if gchat:
+    app.mount("/rag", gchat.app)
 
 
 @app.on_event("startup")
