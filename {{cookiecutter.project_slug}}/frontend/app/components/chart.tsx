@@ -164,10 +164,10 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
           ],
           enabled_features: ["hide_left_toolbar_by_default"],
           disabled_features_mobile: ["left_toolbar", "header_widget", "timeframes_toolbar"],
-          overrides: {
-            "mainSeriesProperties.showCountdown": false,
-            "paneProperties.legendProperties.showLegend": false,
-          },
+          //overrides: {
+           // "mainSeriesProperties.showCountdown": false,
+          //  "paneProperties.legendProperties.showLegend": false,
+          //},
           container_id: "tradingview_chart",
           backgroundColor: "#09090b",
           gridColor: "rgba(39, 39, 42, 0.3)",

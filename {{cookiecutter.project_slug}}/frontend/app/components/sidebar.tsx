@@ -104,7 +104,7 @@ export function PortfolioSidebar({
       {/* Controls */}
       <div className="px-3 pb-2 space-y-2">
         <Input
-          placeholder="search your stocks"
+          placeholder="search symbols…"
           value={query}
           onChange={e => setQuery(e.target.value)}
           className="h-8 bg-zinc-900/60 border-zinc-800/60"
