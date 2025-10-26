@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChevronLeft, ChevronRight, Plus, TrendingDown, TrendingUp, X, Star } from "lucide-react"
 import { createChart, ColorType, IChartApi, ISeriesApi } from "lightweight-charts"
 import { cn } from "@/lib/utils"
+import { addStockToPortfolio, removeStockFromPortfolio, getPortfolio } from "@/lib/api"
 
 interface Stock {
   symbol: string
@@ -27,8 +28,8 @@ interface PortfolioSidebarProps {
 }
 
 const SEED: Stock[] = [
-  { symbol: "AAPL", name: "Apple Inc.",     price: 231.45, changePct: 0.79, spark: [221,224,222,228,229,227,231].map((v,i)=>({time:i+1,value:v})) },
-  { symbol: "TSLA", name: "Tesla",          price: 253.71, changePct: 3.65, spark: [241,244,245,249,252,254,253].map((v,i)=>({time:i+1,value:v})) },
+  { symbol: "AAPL", name: "Apple Inc.", price: 231.45, changePct: 0.79, spark: [221,224,222,228,229,227,231].map((v,i)=>({time:i+1,value:v})) },
+  { symbol: "TSLA", name: "Tesla", price: 253.71, changePct: 3.65, spark: [241,244,245,249,252,254,253].map((v,i)=>({time:i+1,value:v})) },
 ]
 
 export function PortfolioSidebar({
@@ -41,6 +42,28 @@ export function PortfolioSidebar({
   const [stocks, setStocks] = useState<Stock[]>(SEED)
   const [query, setQuery] = useState("")
   const [newSymbol, setNewSymbol] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Load portfolio from backend on mount
+  useEffect(() => {
+    const loadPortfolio = async () => {
+      try {
+        const portfolio = await getPortfolio()
+        const formattedStocks: Stock[] = portfolio.map(stock => ({
+          symbol: stock.ticker,
+          name: stock.name || `${stock.ticker} Corp.`,
+          price: 100,
+          changePct: 0,
+          spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v}))
+        }))
+        setStocks(formattedStocks)
+      } catch (err) {
+        console.error("Failed to load portfolio:", err)
+      }
+    }
+    loadPortfolio()
+  }, [])
 
   const filtered = useMemo(() => {
     const list = [...stocks].sort((a, b) =>
@@ -51,24 +74,53 @@ export function PortfolioSidebar({
     return list.filter(s => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
   }, [stocks, sortBy, query])
 
-  // adding a new stock to portfolio TO-DO! (xx corp)
-  const addStock = () => {
+  const addStock = async () => {
     const s = newSymbol.trim().toUpperCase()
     if (!s || stocks.find(x => x.symbol === s)) return
-    setStocks(prev => [
-      ...prev,
-      { symbol: s, name: `${s} Corp.`, price: 100, changePct: 0, spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v})) },
-    ])
-    setNewSymbol("")
+    
+    setLoading(true)
+    setError(null)
+    
+    try {
+      await addStockToPortfolio(s)
+      const portfolio = await getPortfolio()
+      const formattedStocks: Stock[] = portfolio.map(stock => ({
+        symbol: stock.ticker,
+        name: stock.name || `${stock.ticker} Corp.`,
+        price: 100,
+        changePct: 0,
+        spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v}))
+      }))
+      setStocks(formattedStocks)
+      setNewSymbol("")
+    } catch (err: any) {
+      setError(err.message || "Failed to add stock. Please check if the ticker is valid.")
+      console.error("Error adding stock:", err)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const removeStock = (sym: string) => {
-    setStocks(prev => prev.filter(s => s.symbol !== sym))
+  const removeStock = async (sym: string) => {
+    try {
+      await removeStockFromPortfolio(sym)
+      const portfolio = await getPortfolio()
+      const formattedStocks: Stock[] = portfolio.map(stock => ({
+        symbol: stock.ticker,
+        name: stock.name || `${stock.ticker} Corp.`,
+        price: 100,
+        changePct: 0,
+        spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v}))
+      }))
+      setStocks(formattedStocks)
+    } catch (err: any) {
+      console.error("Error removing stock:", err)
+    }
   }
 
   if (isCollapsed) {
     return (
-      <div className="w-16 h-screen bg-zinc-950/30 flex flex-col items-center py-4">
+      <div className="w-20 h-screen bg-zinc-950/30 flex flex-col items-center py-4">
         <Button variant="ghost" size="icon" onClick={onToggleCollapse} className="mb-4">
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -90,7 +142,7 @@ export function PortfolioSidebar({
   }
 
   return (
-    <aside className="w-72 h-screen bg-zinc-950/30 border-r border-zinc-800/40 flex flex-col">
+    <aside className="w-80 h-screen bg-zinc-950/30 border-r border-zinc-800/40 flex flex-col pb-10">
       {/* Header */}
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="text-sm font-semibold flex items-center gap-2">
@@ -117,10 +169,11 @@ export function PortfolioSidebar({
             onKeyDown={e => e.key === "Enter" && addStock()}
             className="h-8 bg-zinc-900/60 border-zinc-800/60"
           />
-          <Button onClick={addStock} className="h-8 px-3 rounded-xl">
+          <Button onClick={addStock} disabled={loading} className="h-8 px-3 rounded-xl">
             <Plus className="h-4 w-4" />
           </Button>
         </div>
+        {error && <div className="text-xs text-red-400 px-3 pb-2">{error}</div>}
         <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
           <SelectTrigger className="h-8 bg-zinc-900/60 border-zinc-800/60">
             <SelectValue />
@@ -135,7 +188,7 @@ export function PortfolioSidebar({
 
       {/* List */}
       <ScrollArea className="flex-1">
-        <div className="px-2 pb-2 space-y-1.5">
+        <div className="pl-2 pr-3 pb-4 space-y-1.5">
           {filtered.map(s => (
             <WatchItem
               key={s.symbol}
@@ -181,7 +234,6 @@ function WatchItem({
     })
     const rising = stock.spark.at(-1)!.value >= stock.spark[0]!.value
     const series = chart.addLineSeries({ color: rising ? "#22c55e" : "#ef4444", lineWidth: 2 })
-    // series.setData(stock.spark)
     chartRef.current = chart
     seriesRef.current = series
     return () => chart.remove()
