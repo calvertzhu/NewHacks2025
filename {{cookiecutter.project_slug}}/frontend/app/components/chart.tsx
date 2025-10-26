@@ -232,20 +232,16 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
         {/* Stats Box - Inline Format */}
         <Card className="flex-1 p-3 bg-zinc-950/30 border-zinc-800/50">
           <div className="flex items-center gap-4 text-xs flex-wrap">
-            {/* Day Range */}
+            {/* Year High*/}
             <div className="flex items-center gap-1.5">
-              <span className="text-zinc-400">Day Range</span>
-              <span className="font-semibold font-mono tabular-nums">
-                {stock.dayLow.toFixed(2)}-{stock.dayHigh.toFixed(2)}
-              </span>
+              <span className="text-zinc-400">Year High</span>
+              <span className="font-semibold tabular-nums">{stock.week52High}</span>
             </div>
-            {/* Year Range*/}
+            {/* Year Low */}
             <span className="text-zinc-600">•</span>
             <div className="flex items-center gap-1.5">
-              <span className="text-zinc-400">52W Range</span>
-              <span className="font-semibold font-mono tabular-nums">
-                {stock.week52Low.toFixed(2)}-{stock.week52High.toFixed(2)}
-              </span>
+              <span className="text-zinc-400">Year Low</span>
+              <span className="font-semibold tabular-nums">{stock.week52Low}</span>
             </div>
             {/* Volume*/}
             <span className="text-zinc-600">•</span>
@@ -253,23 +249,23 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
               <span className="text-zinc-400">Volume</span>
               <span className="font-semibold tabular-nums">{stock.volume}</span>
             </div>
+            {/* Day High*/}
+            <span className="text-zinc-600">•</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-400">Day High</span>
+              <span className="font-semibold tabular-nums">{stock.dayHigh}</span>
+            </div>
+            {/* Day Low Price*/}
+            <span className="text-zinc-600">•</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-400">Day Low</span>
+              <span className="font-semibold tabular-nums">{stock.dayLow}</span>
+            </div>
             {/* Market Cap*/}
             <span className="text-zinc-600">•</span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex it ems-center gap-1.5">
               <span className="text-zinc-400">Market Cap</span>
               <span className="font-semibold tabular-nums">{stock.marketCap}</span>
-            </div>
-            {/* Open Price*/}
-            <span className="text-zinc-600">•</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-zinc-400">Open Price</span>
-              <span className="font-semibold tabular-nums">{stock.openPrice}</span>
-            </div>
-            {/* Close Price*/}
-            <span className="text-zinc-600">•</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-zinc-400">Close Price</span>
-              <span className="font-semibold tabular-nums">{stock.closePrice}</span>
             </div>
           </div>
         </Card>
