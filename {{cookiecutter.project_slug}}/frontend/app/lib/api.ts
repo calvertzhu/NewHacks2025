@@ -21,6 +21,25 @@ interface StockCreate {
   sector?: string
 }
 
+interface Alert {
+  id: string
+  ticker: string
+  indicator_type: string
+  threshold: number
+  condition: string
+  user_email?: string
+  is_active: boolean
+  triggered: boolean
+}
+
+interface AlertCreate {
+  ticker: string
+  indicator_type: string
+  threshold: number
+  condition: string
+  user_email?: string
+}
+
 /**
  * Add a stock to portfolio using Polygon API
  */
@@ -65,5 +84,80 @@ export async function removeStockFromPortfolio(ticker: string): Promise<void> {
   if (!response.ok) {
     const error = await response.json()
     throw new Error(error.detail || "Failed to remove stock")
+  }
+}
+
+/**
+ * Create a new stock alert
+ */
+export async function createAlert(alert: AlertCreate): Promise<Alert> {
+  const response = await fetch(`${API_BASE_URL}/alerts/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(alert),
+  })
+
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.detail || "Failed to create alert")
+  }
+
+  return response.json()
+}
+
+/**
+ * Get all active alerts
+ */
+export async function getAlerts(ticker?: string): Promise<Alert[]> {
+  const url = ticker ? `${API_BASE_URL}/alerts/?ticker=${ticker}` : `${API_BASE_URL}/alerts/`
+  const response = await fetch(url)
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch alerts")
+  }
+
+  return response.json()
+}
+
+/**
+ * Check alerts for a specific ticker
+ */
+export async function checkAlerts(ticker: string): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/alerts/check/${ticker}`, {
+    method: "POST",
+  })
+
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.detail || "Failed to check alerts")
+  }
+
+  return response.json()
+}
+
+/**
+ * Get current SMA value for a stock
+ */
+export async function getSMA(ticker: string, period: number = 50): Promise<any> {
+  try {
+    console.log(`Making request to: ${API_BASE_URL}/prices/${ticker}/indicators/sma?window=${period}`)
+    const response = await fetch(`${API_BASE_URL}/prices/${ticker}/indicators/sma?window=${period}`)
+    
+    console.log(`Response status: ${response.status}`)
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`SMA API error: ${response.status} - ${errorText}`)
+      throw new Error(`Failed to fetch SMA data: ${response.status} ${errorText}`)
+    }
+
+    const data = await response.json()
+    console.log("SMA API response:", data)
+    return data
+  } catch (error) {
+    console.error("SMA API request failed:", error)
+    throw error
   }
 }
