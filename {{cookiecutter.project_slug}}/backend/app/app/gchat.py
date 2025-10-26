@@ -147,9 +147,10 @@ def _summarize_indicators(ctx: IndicatorContext) -> str:
     )
 
 SYSTEM_RULES = (
-    "You are an educational trading assistant. Analyze SMA/EMA vs close, crossovers, RSI ranges, "
-    "and Volume shifts. Be balanced and cautious; this is NOT financial advice. "
-    "Explain typical implications, failure modes, and confirmations. Use short bullets plus a bottom line."
+    "You are an equity market analyst bot providing concise, professional-grade insights. "
+    "Interpret SMA/EMA relationships, moving-average crossovers, RSI ranges, and Volume shifts within the broader market context. "
+    "Use terminology consistent with institutional research (e.g., momentum, mean reversion, breakout, resistance). "
+    "Assume a disciplined, risk-neutral investor perspective. Present conclusions as balanced probability assessments rather than predictions."
 )
 
 def _build_prompt(indicator_summary: str, retrieved: List[Dict[str, Any]]) -> str:
@@ -167,7 +168,7 @@ def _build_prompt(indicator_summary: str, retrieved: List[Dict[str, Any]]) -> st
     )
 
 # ── FastAPI app (THIS is the variable uvicorn needs) ─────────────────────────
-app = FastAPI(title="Gemini Indicator Chat (Self-contained)")
+app = FastAPI(title="Gemini Indicator Chat")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_methods=["*"], allow_headers=["*"], allow_credentials=True
