@@ -90,6 +90,16 @@ class ChatRequest(BaseModel):
     indicator_context: IndicatorContext
     top_k: int = 4
 
+class ConditionAnalysis(BaseModel):
+    stock: str
+    indicator: str
+    period: int
+    condition: str
+    threshold: float
+    matches: int
+    recentMatches: List[Dict[str, Any]]
+    totalDays: int
+
 # ── rag helpers ──────────────────────────────────────────────────────────────
 def _load_store() -> Dict[str, Any]:
     try:
@@ -215,3 +225,57 @@ def chat(req: ChatRequest):
         ],
         "indicator_summary": ind_summary
     }
+
+@app.post("/analyze-conditions")
+def analyze_conditions(condition_data: ConditionAnalysis):
+    """Analyze condition patterns using Gemini AI"""
+    try:
+        # Create analysis prompt
+        prompt = f"""
+        Analyze the following stock condition data and provide insights:
+
+        Stock: {condition_data.stock}
+        Indicator: {condition_data.indicator} (period: {condition_data.period})
+        Condition: {condition_data.indicator} {condition_data.condition} {condition_data.threshold}
+        Total matches found: {condition_data.matches}
+        Recent matches: {condition_data.recentMatches}
+
+        Please provide:
+        1. Pattern analysis - what do these matches tell us about the stock?
+        2. Trading insights - are these good or bad signals?
+        3. Future predictions - what might happen next?
+        4. Risk assessment - what are the risks?
+        5. Recommendations - what should an investor do?
+
+        Be specific and actionable in your analysis.
+        """
+
+        # Generate analysis with Gemini
+        model = genai.GenerativeModel(GENERATION_MODEL)
+        response = model.generate_content(prompt)
+        
+        return {
+            "success": True,
+            "analysis": response.text,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "condition_data": condition_data.dict()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+@app.get("/health")
+def health_check():
+    """Check if Gemini API is working"""
+    try:
+        model = genai.GenerativeModel(GENERATION_MODEL)
+        response = model.generate_content("Hello, are you working?")
+        return {
+            "status": "healthy",
+            "gemini_response": response.text[:100] + "..." if len(response.text) > 100 else response.text
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e)
+        }

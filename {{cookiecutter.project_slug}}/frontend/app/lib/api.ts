@@ -172,3 +172,41 @@ export async function getSMA(ticker: string, period: number = 50): Promise<any> 
     throw error
   }
 }
+
+/**
+ * Get EMA data for a stock
+ */
+export async function getEMA(ticker: string, period: number = 50): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/prices/${ticker}/indicators/ema?window=${period}`)
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Failed to fetch EMA data: ${response.status} ${errorText}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error("EMA API request failed:", error)
+    throw error
+  }
+}
+
+/**
+ * Get RSI data for a stock
+ */
+export async function getRSI(ticker: string, period: number = 14): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/prices/${ticker}/indicators/rsi?window=${period}`)
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Failed to fetch RSI data: ${response.status} ${errorText}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error("RSI API request failed:", error)
+    throw error
+  }
+}

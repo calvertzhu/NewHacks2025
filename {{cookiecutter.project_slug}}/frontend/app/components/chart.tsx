@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Settings2, TrendingUp, TrendingDown, Sparkles, X, Bell } from "lucide-react"
 import { AlertDemo } from "./alert-demo"
+import { ConditionGraph } from "./condition-graph"
 
 interface StockChartProps {
   stockSymbol: string
@@ -127,6 +128,7 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
   const [loadingAnalysis, setLoadingAnalysis] = useState(false)
   const [showAiModal, setShowAiModal] = useState(false)
   const [showAlertDemo, setShowAlertDemo] = useState(false)
+  const [showConditionModal, setShowConditionModal] = useState(false)
   const [stock, setStock] = useState(stockData[stockSymbol] || stockData.AAPL)
   const [isLoadingStock, setIsLoadingStock] = useState(true)
   const [exchange, setExchange] = useState("NASDAQ")
@@ -375,7 +377,7 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
         </div>
       </div>
 
-      {/* Chart Area or Alert Demo */}
+      {/* Chart Area, Alert Demo, or Condition Graph */}
       <div className="flex-1 p-6">
         {showAlertDemo ? (
           <AlertDemo 
@@ -383,8 +385,16 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
             onBack={() => setShowAlertDemo(false)}
           />
         ) : (
-          <Card className="h-full p-0 flex flex-col bg-zinc-950/30 border-zinc-800/50 overflow-hidden">
+          <Card className="h-full p-0 flex flex-col bg-zinc-950/30 border-zinc-800/50 overflow-hidden relative">
             <div ref={chartContainerRef} id="tradingview_chart" className="flex-1 min-h-[400px]" />
+            
+            {/* Example Overlay - Bottom left */}
+            <div className="absolute bottom-4 left-4 bg-zinc-900/95 backdrop-blur-sm border border-zinc-700 rounded-lg p-3 shadow-lg">
+              <div className="text-xs text-zinc-400">
+                <div>Indicators: {selectedIndicators.length}</div>
+                <div>Last Update: {new Date().toLocaleTimeString()}</div>
+              </div>
+            </div>
           </Card>
         )}
       </div>
@@ -560,6 +570,17 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
               </PopoverContent>
             </Popover>
 
+            {/* Condition Analysis Button */}
+            {indicator.type && indicator.condition && indicator.value && (
+              <Button
+                onClick={() => setShowConditionModal(true)}
+                className="w-full gap-2 bg-green-600 hover:bg-green-700 rounded-xl"
+              >
+                <TrendingUp className="h-4 w-4" />
+                Analyze Condition
+              </Button>
+            )}
+
             {/* Display Selected Indicators */}
             {selectedIndicators.length > 0 && (
               <div className="space-y-2">
@@ -646,6 +667,46 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
             </Card>
           </div>
         )}
+
+      {/* Condition Analysis Modal */}
+      {showConditionModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowConditionModal(false)}
+        >
+          <Card 
+            className="w-[90vw] max-w-4xl max-h-[80vh] bg-zinc-900 border-zinc-800 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+              <h2 className="text-xl font-semibold text-zinc-200">
+                Condition Analysis - {stockSymbol}
+              </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowConditionModal(false)}
+                className="h-8 w-8 text-zinc-400 hover:text-zinc-200"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <ConditionGraph
+                stockSymbol={stockSymbol}
+                indicatorType={indicator.type || "SMA"}
+                period={indicator.period}
+                condition={indicator.condition || ">"}
+                threshold={indicator.value || 0}
+                onBack={() => setShowConditionModal(false)}
+              />
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
