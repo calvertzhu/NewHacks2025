@@ -10,8 +10,10 @@ __pycache__/
 *.so
 .Python
 venv/
+.venv/
 env/
 ENV/
+pyvenv.cfg
 
 # Node
 node_modules/
