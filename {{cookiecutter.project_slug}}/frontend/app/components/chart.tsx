@@ -139,6 +139,9 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
           enable_publishing: false,
           hide_side_toolbar: true,
           allow_symbol_change: false,
+          overrides: {
+            "paneProperties.legendProperties.showInterval": false,
+          },
           disabled_features: [
             "header_symbol_search", //  no
             "header_compare", // no
@@ -154,7 +157,7 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
             // "context_menus",
             // "edit_buttons_in_legend",
             // "border_around_the_chart",
-            // "display_market_status", // no
+            "display_market_status",
             "remove_library_container_border",
             "chart_property_page_style",
             "property_pages",
@@ -224,7 +227,7 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
       {/* Chart Area */}
       <div className="flex-1 p-6">
         <Card className="h-full p-0 flex flex-col bg-zinc-950/30 border-zinc-800/50 overflow-hidden">
-          <div ref={chartContainerRef} id="tradingview_chart" className="flex-1 min-h-[400px] pointer-events-none" />
+          <div ref={chartContainerRef} id="tradingview_chart" className="flex-1 min-h-[400px]" />
         </Card>
       </div>
 

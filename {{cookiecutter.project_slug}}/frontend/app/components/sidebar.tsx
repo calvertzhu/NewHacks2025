@@ -54,6 +54,8 @@ export function PortfolioSidebar({
   // adding a new stock to portfolio TO-DO! (xx corp)
   const addStock = () => {
     const s = newSymbol.trim().toUpperCase()
+    // “If the input is empty OR the stock symbol already exists, stop and don’t add anything.”
+    // Here, make it that the stock must also be valid (not random letters)
     if (!s || stocks.find(x => x.symbol === s)) return
     setStocks(prev => [
       ...prev,
