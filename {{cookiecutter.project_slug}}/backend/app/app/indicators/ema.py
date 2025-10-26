@@ -31,17 +31,16 @@ async def get_ema(
         limit: Number of results to return
     """
     try:
+        params = {
+            "window": window,
+            "limit": limit,
+            "apiKey": POLYGON_API_KEY
+        }
+        
         async with httpx.AsyncClient(follow_redirects=True) as client:
             response = await client.get(
                 f"{POLYGON_BASE_URL}/v1/indicators/ema/{ticker.upper()}",
-                params={
-                    "window": window,
-                    "series_type": series_type,
-                    "timespan": timespan,
-                    "limit": limit,
-                    "apiKey": POLYGON_API_KEY,
-                    **({"timestamp": timestamp} if timestamp else {})
-                },
+                params=params,
                 timeout=15.0
             )
 

@@ -100,6 +100,20 @@ async def get_sma_endpoint(ticker: str, window: int = 50, limit: int = 100):
     return result
 
 
+@router.get("/{ticker}/indicators/ema")
+async def get_ema_endpoint(ticker: str, window: int = 50, limit: int = 100):
+    """
+    Get EMA (Exponential Moving Average) data for a stock
+    """
+    try:
+        from indicators.ema import get_ema
+        
+        result = await get_ema(ticker, window, limit)
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch EMA data: {str(e)}")
+
 @router.get("/{ticker}/indicators/rsi")
 async def get_rsi_endpoint(ticker: str, window: int = 14, limit: int = 100):
     """

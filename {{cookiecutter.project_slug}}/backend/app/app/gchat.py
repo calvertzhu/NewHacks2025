@@ -100,6 +100,13 @@ class ConditionAnalysis(BaseModel):
     recentMatches: List[Dict[str, Any]]
     totalDays: int
 
+class MultiConditionAnalysis(BaseModel):
+    stock: str
+    conditions: List[Dict[str, Any]]
+    matches: int
+    recentMatches: List[Dict[str, Any]]
+    totalDays: int
+
 # ── rag helpers ──────────────────────────────────────────────────────────────
 def _load_store() -> Dict[str, Any]:
     try:
@@ -264,6 +271,51 @@ def analyze_conditions(condition_data: ConditionAnalysis):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+@app.post("/analyze-multi-conditions")
+def analyze_multi_conditions(condition_data: MultiConditionAnalysis):
+    """Analyze multiple condition patterns using Gemini AI"""
+    try:
+        # Create analysis prompt
+        conditions_text = "\n".join([
+            f"- {cond['type']} {cond['condition']} {cond['value']} (period: {cond['period']})"
+            for cond in condition_data.conditions
+        ])
+        
+        prompt = f"""
+        Analyze the following multi-condition stock data and provide insights:
+
+        Stock: {condition_data.stock}
+        Conditions:
+        {conditions_text}
+        
+        Total matches found: {condition_data.matches}
+        Recent matches: {condition_data.recentMatches}
+
+        Please provide:
+        1. Pattern analysis - what do these combined conditions tell us about the stock?
+        2. Trading insights - are these good or bad signals when combined?
+        3. Future predictions - what might happen next when all conditions align?
+        4. Risk assessment - what are the risks of this multi-condition strategy?
+        5. Recommendations - what should an investor do when all conditions are met?
+
+        Focus on the COMBINED effect of all conditions being met simultaneously.
+        Be specific and actionable in your analysis.
+        """
+
+        # Generate analysis with Gemini
+        model = genai.GenerativeModel(GENERATION_MODEL)
+        response = model.generate_content(prompt)
+        
+        return {
+            "success": True,
+            "analysis": response.text,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "condition_data": condition_data.dict()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Multi-condition analysis failed: {str(e)}")
 
 @app.get("/health")
 def health_check():

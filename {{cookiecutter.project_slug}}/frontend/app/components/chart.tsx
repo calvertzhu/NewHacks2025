@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Settings2, TrendingUp, TrendingDown, Sparkles, X, Bell } from "lucide-react"
+import { Settings2, TrendingUp, TrendingDown, X, Bell } from "lucide-react"
 import { AlertDemo } from "./alert-demo"
 import { ConditionGraph } from "./condition-graph"
+import { MultiConditionGraph } from "./multi-condition-graph"
 
 interface StockChartProps {
   stockSymbol: string
@@ -123,10 +124,14 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
     type: null,
     period: 14,
   })
+  const [indicatorConditions, setIndicatorConditions] = useState<Array<{
+    id: string
+    type: string
+    period: number
+    condition: string
+    value: number
+  }>>([])
   const [selectedIndicators, setSelectedIndicators] = useState<SelectedIndicator[]>([])
-  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null)
-  const [loadingAnalysis, setLoadingAnalysis] = useState(false)
-  const [showAiModal, setShowAiModal] = useState(false)
   const [showAlertDemo, setShowAlertDemo] = useState(false)
   const [showConditionModal, setShowConditionModal] = useState(false)
   const [stock, setStock] = useState(stockData[stockSymbol] || stockData.AAPL)
@@ -293,61 +298,28 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
         period: indicator.period
       }
       setSelectedIndicators([...selectedIndicators, newIndicator])
+      
+      // If condition is set, add to conditions list
+      if (indicator.condition && indicator.value !== undefined) {
+        const newCondition = {
+          id: Date.now().toString(),
+          type: indicator.type,
+          period: indicator.period,
+          condition: indicator.condition,
+          value: indicator.value
+        }
+        setIndicatorConditions([...indicatorConditions, newCondition])
+      }
+      
       setIndicator({ type: null, period: 14 })
     }
   }
 
   const handleRemoveIndicator = (id: string) => {
     setSelectedIndicators(selectedIndicators.filter(ind => ind.id !== id))
+    setIndicatorConditions(indicatorConditions.filter(cond => cond.id !== id))
   }
 
-  const fetchAiAnalysis = async () => {
-    setLoadingAnalysis(true)
-    try {
-      // Build indicator context from all selected indicators
-      const smaIndicators = selectedIndicators.filter(ind => ind.type === "SMA")
-      const emaIndicators = selectedIndicators.filter(ind => ind.type === "EMA")
-      const rsiIndicators = selectedIndicators.filter(ind => ind.type === "RSI")
-      
-      const response = await fetch("http://localhost:8000/rag/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_history: [],
-          indicator_context: {
-            symbol: stockSymbol,
-            sma: smaIndicators.length > 0 ? smaIndicators.map(ind => `${ind.period} days`).join(", ") : null,
-            ema: emaIndicators.length > 0 ? emaIndicators.map(ind => `${ind.period} days`).join(", ") : null,
-            rsi: rsiIndicators.length > 0 ? rsiIndicators.map(ind => `${ind.period} period`).join(", ") : null,
-            criteria_text: `Analyzing ${selectedIndicators.length} indicators: ${selectedIndicators.map(ind => `${ind.type}-${ind.period}`).join(", ")}`
-          },
-          top_k: 4
-        })
-      })
-      
-      // Check if response is ok before parsing JSON
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error("AI analysis failed:", errorText)
-        setAiAnalysis("Error: AI analysis is not available. Gemini API key is not configured.")
-        return
-      }
-      
-      const data = await response.json()
-      if (data && data.reply) {
-        setAiAnalysis(data.reply)
-        setShowAiModal(true)  // Open modal when analysis is ready
-      } else {
-        setAiAnalysis("No analysis available from AI service.")
-        setShowAiModal(true)
-      }
-    } catch (err) {
-      console.error("AI analysis failed:", err)
-      setAiAnalysis("Error: Could not generate analysis. Please ensure the backend is running.")
-    } finally {
-      setLoadingAnalysis(false)
-    }
-  }
 
   return (
     <div className="flex-1 flex flex-col bg-zinc-950">
@@ -570,16 +542,15 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
               </PopoverContent>
             </Popover>
 
-            {/* Condition Analysis Button */}
-            {indicator.type && indicator.condition && indicator.value && (
-              <Button
-                onClick={() => setShowConditionModal(true)}
-                className="w-full gap-2 bg-green-600 hover:bg-green-700 rounded-xl"
-              >
-                <TrendingUp className="h-4 w-4" />
-                Analyze Condition
-              </Button>
-            )}
+            {/* Condition Analysis Button - Always Visible */}
+            <Button
+              onClick={() => setShowConditionModal(true)}
+              disabled={indicatorConditions.length === 0}
+              className="w-full gap-2 bg-green-600 hover:bg-green-700 rounded-xl disabled:bg-zinc-700 disabled:text-zinc-500"
+            >
+              <TrendingUp className="h-4 w-4" />
+              Analyze Conditions ({indicatorConditions.length})
+            </Button>
 
             {/* Display Selected Indicators */}
             {selectedIndicators.length > 0 && (
@@ -608,6 +579,32 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
               </div>
             )}
 
+            {/* Display Conditions */}
+            {indicatorConditions.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs text-zinc-400 font-medium">Conditions ({indicatorConditions.length}):</div>
+                {indicatorConditions.map((cond) => (
+                  <div key={cond.id} className="flex items-center justify-between p-2 bg-green-900/20 border border-green-800/30 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                      <span className="text-xs text-green-300 font-medium">{cond.type}</span>
+                      <span className="text-xs text-green-400">{cond.condition} {cond.value}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setIndicatorConditions(indicatorConditions.filter(c => c.id !== cond.id))
+                      }}
+                      className="h-6 w-6 p-0 text-zinc-400 hover:text-red-400"
+                    >
+                      ×
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Alert Demo Toggle */}
             <Button
               onClick={() => setShowAlertDemo(!showAlertDemo)}
@@ -617,56 +614,12 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
               {showAlertDemo ? "Show Chart" : "Alert Demo"}
             </Button>
 
-            {/* AI Analysis Button */}
-            <Button
-              onClick={fetchAiAnalysis}
-              disabled={loadingAnalysis}
-              className="w-full gap-2 bg-purple-600 hover:bg-purple-700 rounded-xl"
-            >
-              <Sparkles className="h-4 w-4" />
-              {loadingAnalysis ? "Analyzing..." : "Get AI Analysis"}
-            </Button>
 
           </div>
         </Card>
         </div>
       )}
 
-      {/* AI Analysis Modal */}
-        {showAiModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setShowAiModal(false)}>
-            <Card 
-              className="w-[90vw] max-w-2xl max-h-[80vh] bg-zinc-900 border-zinc-800 overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-                <div className="flex items-center gap-3">
-                  <Sparkles className="h-5 w-5 text-purple-400" />
-                  <h3 className="text-lg font-semibold text-zinc-100">AI Analysis</h3>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  onClick={() => setShowAiModal(false)}
-                >
-                  <X className="h-4 w-4 text-zinc-400" />
-                </Button>
-              </div>
-              <div className="p-6 overflow-y-auto max-h-[calc(80vh-100px)]">
-                {loadingAnalysis ? (
-                  <div className="text-center py-8 text-zinc-400">Analyzing indicators...</div>
-                ) : aiAnalysis ? (
-                  <div className="text-sm text-zinc-300 whitespace-pre-wrap leading-relaxed">
-                    {aiAnalysis}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-zinc-400">No analysis available</div>
-                )}
-              </div>
-            </Card>
-          </div>
-        )}
 
       {/* Condition Analysis Modal */}
       {showConditionModal && (
@@ -695,12 +648,9 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
             
             {/* Modal Content */}
             <div className="flex-1 overflow-y-auto p-4">
-              <ConditionGraph
+              <MultiConditionGraph
                 stockSymbol={stockSymbol}
-                indicatorType={indicator.type || "SMA"}
-                period={indicator.period}
-                condition={indicator.condition || ">"}
-                threshold={indicator.value || 0}
+                conditions={indicatorConditions}
                 onBack={() => setShowConditionModal(false)}
               />
             </div>
