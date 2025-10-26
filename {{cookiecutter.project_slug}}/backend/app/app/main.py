@@ -4,8 +4,8 @@ Main FastAPI application entry point.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import connect_to_mongo, close_mongo_connection, get_database
-from app.routers import portfolio
+from database import connect_to_mongo, close_mongo_connection, get_database
+from routers import portfolio, prices
 
 # Create FastAPI app
 app = FastAPI(
@@ -25,6 +25,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(portfolio.router)
+app.include_router(prices.router)
 
 
 @app.on_event("startup")
@@ -51,9 +52,11 @@ async def health_check():
     try:
         # Check MongoDB connection
         db = await get_database()
-        if db:
+        if db is not None:
             await db.command("ping")
-        return {"status": "healthy", "mongodb": "connected"}
+            return {"status": "healthy", "mongodb": "connected"}
+        else:
+            return {"status": "unhealthy", "mongodb": "disconnected", "error": "Database not initialized"}
     except Exception as e:
         return {"status": "unhealthy", "mongodb": "disconnected", "error": str(e)}
 
