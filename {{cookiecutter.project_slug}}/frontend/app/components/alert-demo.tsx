@@ -6,14 +6,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Bell, TrendingUp, Mail, CheckCircle } from "lucide-react"
+import { Bell, TrendingUp, Mail, CheckCircle, ArrowLeft } from "lucide-react"
 import { createAlert, getAlerts, checkAlerts, getSMA } from "@/lib/api"
 
 interface AlertDemoProps {
   stockSymbol: string
+  onBack?: () => void
 }
 
-export function AlertDemo({ stockSymbol }: AlertDemoProps) {
+export function AlertDemo({ stockSymbol, onBack }: AlertDemoProps) {
   const [threshold, setThreshold] = useState(200)
   const [condition, setCondition] = useState("above")
   const [currentSMA, setCurrentSMA] = useState<number | null>(null)
@@ -138,6 +139,20 @@ export function AlertDemo({ stockSymbol }: AlertDemoProps) {
 
   return (
     <div className="space-y-6">
+      {/* Back Button */}
+      {onBack && (
+        <div className="flex items-center gap-3 mb-4">
+          <Button
+            onClick={onBack}
+            variant="outline"
+            className="gap-2 bg-zinc-900 border-zinc-800 hover:bg-zinc-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Chart
+          </Button>
+        </div>
+      )}
+      
       {/* Current SMA Display */}
       <Card className="p-4 bg-zinc-900 border-zinc-800">
         <div className="flex items-center gap-3 mb-4">

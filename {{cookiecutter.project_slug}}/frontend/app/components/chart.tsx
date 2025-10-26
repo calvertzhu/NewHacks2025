@@ -378,7 +378,10 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
       {/* Chart Area or Alert Demo */}
       <div className="flex-1 p-6">
         {showAlertDemo ? (
-          <AlertDemo stockSymbol={stockSymbol} />
+          <AlertDemo 
+            stockSymbol={stockSymbol} 
+            onBack={() => setShowAlertDemo(false)}
+          />
         ) : (
           <Card className="h-full p-0 flex flex-col bg-zinc-950/30 border-zinc-800/50 overflow-hidden">
             <div ref={chartContainerRef} id="tradingview_chart" className="flex-1 min-h-[400px]" />
@@ -386,89 +389,91 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
         )}
       </div>
 
-      <div className="px-6 pb-6 flex gap-3">
-        {/* Stats Box - Inline Format */}
-        <Card className="flex-[0.7] p-3 bg-zinc-950/30 border-zinc-800/50">
-          <div className="flex items-center gap-4 text-xs flex-wrap">
-            {/* Year High*/}
-            <div className="flex items-center gap-1.5">
-              <span className="text-zinc-400">Year High</span>
-              <span className="font-semibold tabular-nums">{stock.week52High}</span>
-            </div>
-            {/* Year Low */}
-            <span className="text-zinc-600">•</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-zinc-400">Year Low</span>
-              <span className="font-semibold tabular-nums">{stock.week52Low}</span>
-            </div>
-            {/* Volume*/}
-            <span className="text-zinc-600">•</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-zinc-400">Volume</span>
-              <span className="font-semibold tabular-nums">{stock.volume}</span>
-            </div>
+      {!showAlertDemo && (
+        <div className="px-6 pb-6 flex gap-3">
+          {/* Stats Box - Inline Format */}
+          <Card className="flex-[0.7] p-3 bg-zinc-950/30 border-zinc-800/50">
+            <div className="flex items-center gap-4 text-xs flex-wrap">
+              {/* Year High*/}
+              <div className="flex items-center gap-1.5">
+                <span className="text-zinc-400">Year High</span>
+                <span className="font-semibold tabular-nums">{stock.week52High}</span>
+              </div>
+              {/* Year Low */}
+              <span className="text-zinc-600">•</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-zinc-400">Year Low</span>
+                <span className="font-semibold tabular-nums">{stock.week52Low}</span>
+              </div>
+              {/* Volume*/}
+              <span className="text-zinc-600">•</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-zinc-400">Volume</span>
+                <span className="font-semibold tabular-nums">{stock.volume}</span>
+              </div>
 
-            <div className="basis-full h-0" />
+              <div className="basis-full h-0" />
 
-            {/* Day High*/}
-            <div className="flex items-center gap-1.5">
-            <span className="text-zinc-400">Day High</span>
-            <span className="font-semibold tabular-nums">{stock.dayHigh}</span>
+              {/* Day High*/}
+              <div className="flex items-center gap-1.5">
+              <span className="text-zinc-400">Day High</span>
+              <span className="font-semibold tabular-nums">{stock.dayHigh}</span>
+              </div>
+              {/* Day Low Price*/}
+              <span className="text-zinc-600">•</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-zinc-400">Day Low</span>
+                <span className="font-semibold tabular-nums">{stock.dayLow}</span>
+              </div>
+              {/* Market Cap*/}
+              <span className="text-zinc-600">•</span>
+              <div className="flex it ems-center gap-1.5">
+                <span className="text-zinc-400">Market Cap</span>
+                <span className="font-semibold tabular-nums">{stock.marketCap}</span>
+              </div>
             </div>
-            {/* Day Low Price*/}
-            <span className="text-zinc-600">•</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-zinc-400">Day Low</span>
-              <span className="font-semibold tabular-nums">{stock.dayLow}</span>
-            </div>
-            {/* Market Cap*/}
-            <span className="text-zinc-600">•</span>
-            <div className="flex it ems-center gap-1.5">
-              <span className="text-zinc-400">Market Cap</span>
-              <span className="font-semibold tabular-nums">{stock.marketCap}</span>
-            </div>
-          </div>
-        </Card>
+          </Card>
 
-        {/* Indicator Controls */}
-        <Card className="w-80 p-4 bg-zinc-950/30 border-zinc-800/50">
+          {/* Indicator Controls */}
+          <Card className="w-80 p-4 bg-zinc-950/30 border-zinc-800/50">
           <div className="space-y-3">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full gap-2 bg-zinc-900 border-zinc-800 rounded-xl">
+                <Button variant="outline" className="w-full gap-2 bg-blue-600/20 border-blue-500/50 text-blue-400 hover:bg-blue-600/30 hover:border-blue-400 rounded-xl">
                   <Settings2 className="h-4 w-4" />
                   {indicator.type ? `${indicator.type} (${indicator.period})` : "Add Indicator"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 bg-zinc-900 border-zinc-800" align="end">
+              <PopoverContent className="w-80 bg-zinc-900 border-zinc-700" align="end">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-zinc-400 text-xs">Indicator Type</Label>
+                    <Label className="text-zinc-300 text-sm font-medium">Indicator Type</Label>
                     <Select
                       value={indicator.type || ""}
                       onValueChange={(v: any) => setIndicator({ ...indicator, type: v })}
                     >
-                      <SelectTrigger className="bg-zinc-950 border-zinc-800">
+                      <SelectTrigger className="bg-zinc-800 border-zinc-600 text-zinc-200 hover:border-blue-500">
                         <SelectValue placeholder="Select indicator" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="SMA">SMA (Simple Moving Average)</SelectItem>
-                        <SelectItem value="EMA">EMA (Exponential Moving Average)</SelectItem>
-                        <SelectItem value="RSI">RSI (Relative Strength Index)</SelectItem>
+                      <SelectContent className="bg-zinc-800 border-zinc-600">
+                        <SelectItem value="SMA" className="text-zinc-200 hover:bg-zinc-700">SMA (Simple Moving Average)</SelectItem>
+                        <SelectItem value="EMA" className="text-zinc-200 hover:bg-zinc-700">EMA (Exponential Moving Average)</SelectItem>
+                        <SelectItem value="RSI" className="text-zinc-200 hover:bg-zinc-700">RSI (Relative Strength Index)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   {indicator.type && (
                     <div className="space-y-2">
-                      <Label className="text-zinc-400 text-xs">Period (Days)</Label>
+                      <Label className="text-zinc-300 text-sm font-medium">Period (Days)</Label>
                       <Input
                         type="number"
                         value={indicator.period}
                         onChange={(e) => setIndicator({ ...indicator, period: Number.parseInt(e.target.value) || 14 })}
                         min="1"
                         max="200"
-                        className="bg-zinc-950 border-zinc-800"
+                        className="bg-zinc-800 border-zinc-600 text-zinc-200 hover:border-blue-500 focus:border-blue-500"
+                        placeholder="Enter period (1-200)"
                       />
                     </div>
                   )}
@@ -476,30 +481,30 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
                   {(indicator.type === "SMA" || indicator.type === "EMA") && (
                     <>
                       <div className="space-y-2">
-                        <Label className="text-zinc-400 text-xs">Condition (Optional)</Label>
+                        <Label className="text-zinc-300 text-sm font-medium">Condition (Optional)</Label>
                         <Select
                           value={indicator.condition || ""}
                           onValueChange={(v: any) => setIndicator({ ...indicator, condition: v })}
                         >
-                          <SelectTrigger className="bg-zinc-950 border-zinc-800">
+                          <SelectTrigger className="bg-zinc-800 border-zinc-600 text-zinc-200 hover:border-blue-500">
                             <SelectValue placeholder="Select condition" />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value=">">Greater than (&gt;)</SelectItem>
-                            <SelectItem value="<">Less than (&lt;)</SelectItem>
+                          <SelectContent className="bg-zinc-800 border-zinc-600">
+                            <SelectItem value=">" className="text-zinc-200 hover:bg-zinc-700">Greater than (&gt;)</SelectItem>
+                            <SelectItem value="<" className="text-zinc-200 hover:bg-zinc-700">Less than (&lt;)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       {indicator.condition && (
                         <div className="space-y-2">
-                          <Label className="text-zinc-400 text-xs">Value</Label>
+                          <Label className="text-zinc-300 text-sm font-medium">Value</Label>
                           <Input
                             type="number"
                             value={indicator.value || ""}
                             onChange={(e) => setIndicator({ ...indicator, value: Number.parseFloat(e.target.value) })}
                             placeholder="Enter value"
-                            className="bg-zinc-950 border-zinc-800"
+                            className="bg-zinc-800 border-zinc-600 text-zinc-200 hover:border-blue-500 focus:border-blue-500"
                           />
                         </div>
                       )}
@@ -509,24 +514,24 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
                   {indicator.type === "RSI" && (
                     <>
                       <div className="space-y-2">
-                        <Label className="text-zinc-400 text-xs">Condition (Optional)</Label>
+                        <Label className="text-zinc-300 text-sm font-medium">Condition (Optional)</Label>
                         <Select
                           value={indicator.condition || ""}
                           onValueChange={(v: any) => setIndicator({ ...indicator, condition: v })}
                         >
-                          <SelectTrigger className="bg-zinc-950 border-zinc-800">
+                          <SelectTrigger className="bg-zinc-800 border-zinc-600 text-zinc-200 hover:border-blue-500">
                             <SelectValue placeholder="Select condition" />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value=">">Greater than (&gt;)</SelectItem>
-                            <SelectItem value="<">Less than (&lt;)</SelectItem>
+                          <SelectContent className="bg-zinc-800 border-zinc-600">
+                            <SelectItem value=">" className="text-zinc-200 hover:bg-zinc-700">Greater than (&gt;)</SelectItem>
+                            <SelectItem value="<" className="text-zinc-200 hover:bg-zinc-700">Less than (&lt;)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       {indicator.condition && (
                         <div className="space-y-2">
-                          <Label className="text-zinc-400 text-xs">Value (0-100)</Label>
+                          <Label className="text-zinc-300 text-sm font-medium">Value (0-100)</Label>
                           <Input
                             type="number"
                             value={indicator.value || ""}
@@ -534,7 +539,7 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
                             placeholder="Enter value (0-100)"
                             min="0"
                             max="100"
-                            className="bg-zinc-950 border-zinc-800"
+                            className="bg-zinc-800 border-zinc-600 text-zinc-200 hover:border-blue-500 focus:border-blue-500"
                           />
                         </div>
                       )}
@@ -603,8 +608,10 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
 
           </div>
         </Card>
+        </div>
+      )}
 
-        {/* AI Analysis Modal */}
+      {/* AI Analysis Modal */}
         {showAiModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setShowAiModal(false)}>
             <Card 
@@ -639,7 +646,6 @@ export function StockChart({ stockSymbol, isSidebarCollapsed }: StockChartProps)
             </Card>
           </div>
         )}
-      </div>
     </div>
   )
 }

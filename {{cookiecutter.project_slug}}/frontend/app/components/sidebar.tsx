@@ -27,10 +27,6 @@ interface PortfolioSidebarProps {
   onToggleCollapse: () => void
 }
 
-const SEED: Stock[] = [
-  { symbol: "AAPL", name: "Apple Inc.", price: 231.45, changePct: 0.79, spark: [221,224,222,228,229,227,231].map((v,i)=>({time:i+1,value:v})) },
-  { symbol: "TSLA", name: "Tesla", price: 253.71, changePct: 3.65, spark: [241,244,245,249,252,254,253].map((v,i)=>({time:i+1,value:v})) },
-]
 
 export function PortfolioSidebar({
   selectedStock,
@@ -39,7 +35,7 @@ export function PortfolioSidebar({
   onToggleCollapse,
 }: PortfolioSidebarProps) {
   const [sortBy, setSortBy] = useState<"alphabetical" | "alerts" | "recent">("alphabetical")
-  const [stocks, setStocks] = useState<Stock[]>(SEED)
+  const [stocks, setStocks] = useState<Stock[]>([])
   const [query, setQuery] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,8 +43,11 @@ export function PortfolioSidebar({
   // Load portfolio from backend on mount
   useEffect(() => {
     const loadPortfolio = async () => {
+      setLoading(true)
       try {
+        console.log("Loading portfolio from backend...")
         const portfolio = await getPortfolio()
+        console.log("Portfolio loaded:", portfolio)
         const formattedStocks: Stock[] = portfolio.map(stock => ({
           symbol: stock.ticker,
           name: stock.name || `${stock.ticker} Corp.`,
@@ -56,9 +55,13 @@ export function PortfolioSidebar({
           changePct: 0,
           spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v}))
         }))
+        console.log("Formatted stocks:", formattedStocks)
         setStocks(formattedStocks)
       } catch (err) {
         console.error("Failed to load portfolio:", err)
+        setError("Failed to load portfolio")
+      } finally {
+        setLoading(false)
       }
     }
     loadPortfolio()
@@ -101,9 +104,17 @@ export function PortfolioSidebar({
   }
 
   const removeStock = async (sym: string) => {
+    // Add confirmation dialog
+    if (!confirm(`Are you sure you want to remove ${sym} from your portfolio?`)) {
+      return
+    }
+    
     try {
+      console.log(`Attempting to remove stock: ${sym}`)
       await removeStockFromPortfolio(sym)
+      console.log(`Successfully removed ${sym}, refreshing portfolio...`)
       const portfolio = await getPortfolio()
+      console.log("Updated portfolio:", portfolio)
       const formattedStocks: Stock[] = portfolio.map(stock => ({
         symbol: stock.ticker,
         name: stock.name || `${stock.ticker} Corp.`,
@@ -112,8 +123,10 @@ export function PortfolioSidebar({
         spark: [98,99,99,100,101,100,100].map((v,i)=>({time:i+1,value:v}))
       }))
       setStocks(formattedStocks)
+      console.log("Portfolio updated successfully")
     } catch (err: any) {
       console.error("Error removing stock:", err)
+      alert(`Failed to remove stock: ${err.message}`)
     }
   }
 
@@ -185,15 +198,29 @@ export function PortfolioSidebar({
       {/* List */}
       <ScrollArea className="flex-1">
         <div className="pl-3 pr-4 pb-8 space-y-1.5">
-          {filtered.map(s => (
-            <WatchItem
-              key={s.symbol}
-              stock={s}
-              active={selectedStock === s.symbol}
-              onClick={() => onSelectStock(s.symbol)}
-              onRemove={() => removeStock(s.symbol)}
-            />
-          ))}
+          {loading ? (
+            <div className="text-center py-8 text-zinc-400">
+              Loading portfolio...
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-400">
+              {error}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-8 text-zinc-400">
+              No stocks in portfolio
+            </div>
+          ) : (
+            filtered.map(s => (
+              <WatchItem
+                key={s.symbol}
+                stock={s}
+                active={selectedStock === s.symbol}
+                onClick={() => onSelectStock(s.symbol)}
+                onRemove={() => removeStock(s.symbol)}
+              />
+            ))
+          )}
         </div>
       </ScrollArea>
     </aside>
@@ -230,6 +257,18 @@ function WatchItem({ stock, active, onClick, onRemove }: { stock: Stock; active?
       )}
     >
       <div className="flex items-center gap-2 min-w-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50"
+          title="Delete stock"
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove?.()
+          }}
+        >
+          <X className="h-3 w-3 text-red-400" />
+        </Button>
         <div className="text-sm font-semibold tracking-wide">{stock.symbol}</div>
         <div className="text-xs text-zinc-400 truncate hidden sm:block">{stock.name}</div>
       </div>
@@ -246,17 +285,6 @@ function WatchItem({ stock, active, onClick, onRemove }: { stock: Stock; active?
           {stock.changePct.toFixed(2)}%
         </div>
         <div ref={ref} className="w-28 h-9" />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6"
-          onClick={(e) => {
-            e.stopPropagation()
-            onRemove?.()
-          }}
-        >
-          <X className="h-3.5 w-3.5 text-zinc-500" />
-        </Button>
       </div>
     </Card>
   )

@@ -77,13 +77,24 @@ export async function getPortfolio(): Promise<Stock[]> {
  * Remove stock from portfolio
  */
 export async function removeStockFromPortfolio(ticker: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/stocks/${ticker.toUpperCase()}`, {
-    method: "DELETE",
-  })
-
-  if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.detail || "Failed to remove stock")
+  try {
+    console.log(`API: Attempting to delete stock ${ticker.toUpperCase()}`)
+    const response = await fetch(`${API_BASE_URL}/stocks/${ticker.toUpperCase()}`, {
+      method: "DELETE",
+    })
+    
+    console.log(`API: Response status: ${response.status}`)
+    
+    if (!response.ok) {
+      const error = await response.json()
+      console.error(`API: Error response:`, error)
+      throw new Error(error.detail || "Failed to remove stock")
+    }
+    
+    console.log(`API: Successfully deleted ${ticker.toUpperCase()}`)
+  } catch (error) {
+    console.error(`API: Failed to delete ${ticker}:`, error)
+    throw error
   }
 }
 
