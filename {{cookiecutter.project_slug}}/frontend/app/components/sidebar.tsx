@@ -28,9 +28,6 @@ interface PortfolioSidebarProps {
 
 const SEED: Stock[] = [
   { symbol: "AAPL", name: "Apple Inc.",     price: 231.45, changePct: 0.79, spark: [221,224,222,228,229,227,231].map((v,i)=>({time:i+1,value:v})) },
-  { symbol: "MSFT", name: "Microsoft",      price: 428.12, changePct:-0.49, spark: [431,430,429,432,431,427,428].map((v,i)=>({time:i+1,value:v})) },
-  { symbol: "NVDA", name: "NVIDIA",         price: 115.93, changePct: 3.27, spark: [110,112,113,111,116,117,115].map((v,i)=>({time:i+1,value:v})) },
-  { symbol: "AMZN", name: "Amazon",         price: 176.08, changePct:-0.35, spark: [178,177,176,177,176,175,176].map((v,i)=>({time:i+1,value:v})) },
   { symbol: "TSLA", name: "Tesla",          price: 253.71, changePct: 3.65, spark: [241,244,245,249,252,254,253].map((v,i)=>({time:i+1,value:v})) },
 ]
 
@@ -54,6 +51,7 @@ export function PortfolioSidebar({
     return list.filter(s => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
   }, [stocks, sortBy, query])
 
+  // adding a new stock to portfolio TO-DO! (xx corp)
   const addStock = () => {
     const s = newSymbol.trim().toUpperCase()
     if (!s || stocks.find(x => x.symbol === s)) return
@@ -183,7 +181,7 @@ function WatchItem({
     })
     const rising = stock.spark.at(-1)!.value >= stock.spark[0]!.value
     const series = chart.addLineSeries({ color: rising ? "#22c55e" : "#ef4444", lineWidth: 2 })
-    series.setData(stock.spark)
+    // series.setData(stock.spark)
     chartRef.current = chart
     seriesRef.current = series
     return () => chart.remove()
