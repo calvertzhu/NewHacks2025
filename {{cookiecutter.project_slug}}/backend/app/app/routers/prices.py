@@ -4,10 +4,10 @@ Stock price data API endpoints.
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
 
-from models import StockPrices, PriceData
-from database import get_collection
-from price_service import get_stock_prices
-from indicators import (
+from ..models import StockPrices, PriceData
+from ..database import get_collection
+from ..price_service import get_stock_prices
+from ..indicators import (
     get_sma,
     get_rsi,
     get_technical_indicators,

@@ -29,7 +29,7 @@ FIRST_SUPERUSER=admin@example.com
 FIRST_SUPERUSER_PASSWORD=changethis
 
 # Frontend Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
+NEXT_PUBLIC_API_URL=http://localhost:8000
 EOF
     echo "Environment file created"
 else

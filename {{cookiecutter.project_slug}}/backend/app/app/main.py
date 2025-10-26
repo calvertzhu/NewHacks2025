@@ -4,8 +4,8 @@ Main FastAPI application entry point.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from database import connect_to_mongo, close_mongo_connection, get_database
-from routers import portfolio, prices
+from .database import connect_to_mongo, close_mongo_connection, get_database
+from .routers import portfolio, prices
 
 # Create FastAPI app
 app = FastAPI(
